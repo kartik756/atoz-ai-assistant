@@ -79,5 +79,57 @@ class BedrockService:
 
             raise
 
+    async def generate_response(self, query: str, context: List[str]) -> str:
+        """
+        Generate an answer using Bedrock LLM with retrieved context
+        """
+
+        try:
+
+            logger.info("Generating response using Bedrock model")
+
+            context_text = "\n\n".join(context)
+
+            prompt = f"""
+You are an internal enterprise AI assistant for employees.
+
+Use the following company documents to answer the question.
+
+Context:
+{context_text}
+
+Question:
+{query}
+
+Instructions:
+- Answer only using the provided context
+- If the answer is not found in the context, say you don't know
+- Keep the answer concise and clear
+
+Answer:
+"""
+
+            body = {
+                "prompt": prompt,
+                "max_tokens_to_sample": 500,
+                "temperature": 0.3
+            }
+
+            response = self.bedrock_runtime.invoke_model(
+                modelId=self.model_id,
+                body=str(body)
+            )
+
+            response_body = response["body"].read().decode()
+
+            logger.info("Bedrock model response generated")
+
+            return response_body
+
+        except Exception as e:
+
+            logger.error(f"Model generation failed: {str(e)}")
+
+            raise
         
 
