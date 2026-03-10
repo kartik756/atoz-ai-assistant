@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     OPENSEARCH_HOST: str = "localhost"
     OPENSEARCH_PORT: int = 9200
     OPENSEARCH_INDEX: str = "atoz-documents"
+    BEDROCK_KNOWLEDGE_BASE_ID: str
 
     class Config:
         env_file = ".env"
