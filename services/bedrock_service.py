@@ -12,6 +12,7 @@ import boto3
 import logging
 from typing import List
 from config.settings import get_settings
+import json
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -81,7 +82,7 @@ class BedrockService:
 
     async def generate_response(self, query: str, context: List[str]) -> str:
         """
-        Generate an answer using Bedrock LLM with retrieved context
+        Generate an answer using Bedrock Claude model with retrieved context
         """
 
         try:
@@ -103,33 +104,41 @@ Question:
 
 Instructions:
 - Answer only using the provided context
-- If the answer is not found in the context, say you don't know
+- If the answer is not found in the context say you don't know
 - Keep the answer concise and clear
 
 Answer:
 """
 
+            # Claude messages API format
             body = {
-                "prompt": prompt,
-                "max_tokens_to_sample": 500,
-                "temperature": 0.3
+                "anthropic_version": "bedrock-2023-05-31",
+                "max_tokens": 500,
+                "temperature": 0.3,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
             }
 
             response = self.bedrock_runtime.invoke_model(
                 modelId=self.model_id,
-                body=str(body)
+                body=json.dumps(body)
             )
 
-            response_body = response["body"].read().decode()
+            # Parse Claude response
+            response_body = json.loads(response["body"].read())
+
+            answer = response_body["content"][0]["text"]
 
             logger.info("Bedrock model response generated")
 
-            return response_body
+            return answer
 
         except Exception as e:
 
             logger.error(f"Model generation failed: {str(e)}")
 
             raise
-        
-
