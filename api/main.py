@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from config.settings import get_settings
+from api.routes import chat 
 
 settings = get_settings()
 
@@ -8,6 +9,7 @@ app = FastAPI(
     version=settings.APP_VERSION
 )
 
+app.include_router(chat.router)
 
 @app.get("/")
 async def root():
