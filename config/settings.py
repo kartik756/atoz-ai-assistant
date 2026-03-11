@@ -6,10 +6,11 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
     ENVIRONMENT: str = "local"
     AWS_REGION: str = "us-east-1"
-    BEDROCK_MODEL_ID: str = "anthropic.claude-3-sonnet-20240229-v1:0"
+    BEDROCK_MODEL_ID: str = "amazon.nova-lite-v1:0"
     OPENSEARCH_HOST: str = "localhost"
     OPENSEARCH_PORT: int = 9200
     OPENSEARCH_INDEX: str = "atoz-documents"
+    BEDROCK_KNOWLEDGE_BASE_ID: str
 
     class Config:
         env_file = ".env"
