@@ -1,21 +1,21 @@
-'''
-So this file is responsible for:
+"""
+This service interacts with AWS Bedrock.
 
-Talking to AWS Bedrock
-It will handle two operations:
-
-1 Retrieve documents from Knowledge Base
-2 Generate response using LLM
-'''
+Responsibilities:
+1. Retrieve documents from Bedrock Knowledge Base
+2. Generate answers using Bedrock LLM
+"""
 
 import boto3
 import logging
 from typing import List
-from config.settings import get_settings
 import json
+
+from config.settings import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
 
 class BedrockService:
     """
@@ -32,17 +32,18 @@ class BedrockService:
         self.kb_id = settings.BEDROCK_KNOWLEDGE_BASE_ID
         self.model_id = settings.BEDROCK_MODEL_ID
 
+        # Client for LLM inference
         self.bedrock_runtime = boto3.client(
             "bedrock-runtime",
             region_name=self.region
         )
-        
+
+        # Client for Knowledge Base retrieval
         self.bedrock_agent_runtime = boto3.client(
             "bedrock-agent-runtime",
             region_name=self.region
         )
-       
-#This is an asynchronous function that takes a text query and returns a list of text chunks retrieved from the knowledge base.
+
     async def retrieve_from_kb(self, query: str) -> List[str]:
         """
         Retrieve relevant document chunks from Bedrock Knowledge Base
@@ -61,7 +62,7 @@ class BedrockService:
 
             results = response.get("retrievalResults", [])
 
-            documents = []
+            documents: List[str] = []
 
             for item in results:
                 content = item.get("content", {})
@@ -77,12 +78,11 @@ class BedrockService:
         except Exception as e:
 
             logger.error(f"KB retrieval failed: {str(e)}")
-
             raise
 
     async def generate_response(self, query: str, context: List[str]) -> str:
         """
-        Generate an answer using Bedrock Claude model with retrieved context
+        Generate an answer using Bedrock LLM with retrieved context
         """
 
         try:
@@ -106,32 +106,25 @@ Instructions:
 - Answer only using the provided context
 - If the answer is not found in the context say you don't know
 - Keep the answer concise and clear
-
-Answer:
 """
 
-            # Claude messages API format
-            body = {
-                "anthropic_version": "bedrock-2023-05-31",
-                "max_tokens": 500,
-                "temperature": 0.3,
-                "messages": [
+            response = self.bedrock_runtime.converse(
+                modelId=self.model_id,
+                messages=[
                     {
                         "role": "user",
-                        "content": prompt
+                        "content": [
+                            {"text": prompt}
+                        ]
                     }
-                ]
-            }
-
-            response = self.bedrock_runtime.invoke_model(
-                modelId=self.model_id,
-                body=json.dumps(body)
+                ],
+                inferenceConfig={
+                    "maxTokens": 500,
+                    "temperature": 0.3
+                }
             )
 
-            # Parse Claude response
-            response_body = json.loads(response["body"].read())
-
-            answer = response_body["content"][0]["text"]
+            answer = response["output"]["message"]["content"][0]["text"]
 
             logger.info("Bedrock model response generated")
 
@@ -140,5 +133,5 @@ Answer:
         except Exception as e:
 
             logger.error(f"Model generation failed: {str(e)}")
-
             raise
+        

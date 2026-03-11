@@ -1,8 +1,8 @@
 from typing import Dict, Any
 from services.bedrock_service import BedrockService
-from logging import get_logger
+import logging
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class KBRAGPipeline:
