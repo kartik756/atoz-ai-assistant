@@ -53,7 +53,7 @@ class VectorService:
                     },
                     "embedding": {
                         "type": "knn_vector",
-                        "dimension": 1536  #dimension MUST match embedding model
+                        "dimension": settings.EMBEDDING_DIMENSION  #dimension MUST match embedding model
                     },
                     "document_name": {
                         "type": "keyword"
@@ -74,3 +74,37 @@ class VectorService:
         )
 
         print(f"Created index: {index_name}")
+
+    def index_documents(self, documents: list):
+        """
+        Index document chunks with embeddings into OpenSearch.
+        
+        Parameters
+        ----------
+        documents : list
+            List of dictionaries containing:
+            - text
+            - embedding
+            - document_name
+            - page_number
+            - source
+        """
+
+        index_name = settings.OPENSEARCH_INDEX
+
+        for doc in documents:
+
+            body = {
+                "text": doc["text"],
+                "embedding": doc["embedding"],
+                "document_name": doc["document_name"],
+                "page_number": doc["page_number"],
+                "source": doc["source"]
+            }
+
+            self.client.index(
+                index=index_name,
+                body=body
+            )
+
+        print(f"Indexed {len(documents)} documents into {index_name}")
