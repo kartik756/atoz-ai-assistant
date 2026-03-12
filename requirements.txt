@@ -8,3 +8,4 @@ langgraph
 opensearch-py
 python-dotenv
 tqdm
+pypdf
