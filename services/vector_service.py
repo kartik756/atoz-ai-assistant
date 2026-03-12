@@ -108,3 +108,50 @@ class VectorService:
             )
 
         print(f"Indexed {len(documents)} documents into {index_name}")
+
+    def similarity_search(self, query_embedding: list, k: int = 5):
+        """
+        Perform vector similarity search in OpenSearch.
+
+        Parameters
+        ----------
+        query_embedding : list
+            Embedding vector of the user query
+
+        k : int
+            Number of similar documents to return
+        """
+
+        index_name = settings.OPENSEARCH_INDEX
+
+        search_body = {
+            "size": k,
+            "query": {
+                "knn": {
+                    "embedding": {
+                        "vector": query_embedding,
+                        "k": k
+                    }
+                }
+            }
+        }
+
+        response = self.client.search(
+            index=index_name,
+            body=search_body
+        )
+
+        results = []
+
+        for hit in response["hits"]["hits"]:
+            source = hit["_source"]
+
+            results.append({
+                "text": source["text"],
+                "document_name": source["document_name"],
+                "page_number": source["page_number"],
+                "source": source["source"],
+                "score": hit["_score"]
+            })
+
+        return results
