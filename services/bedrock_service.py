@@ -155,8 +155,8 @@ Instructions:
             # Titan Embeddings expects this exact request body shape
             body = json.dumps({
                 "inputText": text,
-                "dimensions": settings.EMBEDDING_DIMENSION,   # 1536
-                "normalize": True    # normalizes vector to unit length
+               # "dimensions": settings.EMBEDDING_DIMENSION,   # 1536
+                #"normalize": True    # normalizes vector to unit length
                                      # required for cosine similarity in OpenSearch
             })
 
