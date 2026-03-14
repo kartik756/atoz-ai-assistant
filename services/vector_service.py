@@ -103,7 +103,7 @@ class VectorService:
             "settings": {
                 "index": {
                     "knn": True,                    # enables kNN plugin
-                    "knn.algo_param.ef_search": 100 # controls recall vs speed tradeoff , search how many nodes before picking chunk- higher no. means more accurate but less speed
+                    "knn.algo_param.ef_search": 100 # controls recall vs speed tradeoff
                                                     # 100 is production-safe default
                 }
             },
@@ -113,17 +113,17 @@ class VectorService:
                         "type": "knn_vector",
                         "dimension": self.embedding_dimension,  # must match Titan output (1536)
                         "method": {
-                            "name": "hnsw",             # Hierarchical Navigable Small World
+                            "name": "hnsw",             # Hierarchical Navigable Small World algo to find nearest neighbors in high-dimensional vector space efficiently.
                                                         # industry standard ANN algorithm
                             "space_type": "cosinesimil",# cosine similarity matching
-                            "engine": "faiss",          # Facebook AI Similarity Search
+                            "engine": "nmslib",          # OpenSearch kNN (nmslib) Similarity Search
                                                         # best performance for dense vectors
                             "parameters": {
                                 "ef_construction": 128, # higher = better index quality
                                                         # lower = faster index build
                                 "m": 16                 # number of neighbours per node
                                                         # 16 is optimal for 1536-dim vectors
-                            }
+                            }#HNSW + nmslib lets you do approximate nearest neighbor (ANN) searches in milliseconds, even for millions of vectors.
                         }
                     },
                     "text": {
