@@ -1,24 +1,19 @@
 from fastapi import FastAPI
-from config.settings import get_settings
-from api.routes import chat 
-
-settings = get_settings()
-
+from api.routes.chat import router as chat_router
+from dotenv import load_dotenv
+load_dotenv()
 app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.APP_VERSION
+    title="AtoZ AI Assistant",
+    version="0.1.0"
 )
 
-app.include_router(chat.router)
-
 @app.get("/")
-async def root():
-    return {
-        "service": settings.APP_NAME,
-        "version": settings.APP_VERSION,
-        "environment": settings.ENVIRONMENT
-    }
+def root():
+    return {"message": "AtoZ AI Assistant API running"}
 
 @app.get("/health")
-async def health():
+def health():
     return {"status": "ok"}
+
+# Register routers
+app.include_router(chat_router)

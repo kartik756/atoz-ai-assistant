@@ -1,19 +1,14 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class ChatRequest(BaseModel):
-    """
-    Request model for chat endpoint
-    """
 
     message: str
+    rag_type: Optional[str] = "custom"
 
 
 class ChatResponse(BaseModel):
-    """
-    Response model returned by chat endpoint
-    """
 
     answer: str
-    context: List[str]
+    context: Optional[List] = None
