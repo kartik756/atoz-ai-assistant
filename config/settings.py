@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     BEDROCK_MODEL_ID: str = "amazon.nova-lite-v1:0"
     BEDROCK_KNOWLEDGE_BASE_ID: str
     EMBEDDING_MODEL_ID: str = "amazon.titan-embed-text-v2:0"
-    EMBEDDING_DIMENSION: int = 1536
+    EMBEDDING_DIMENSION: int = 1024
 
     # ─── OpenSearch ────────────────────────────────────────────────────────
     OPENSEARCH_HOST: str = "localhost"
